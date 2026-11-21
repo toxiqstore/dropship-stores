@@ -1,0 +1,6 @@
+﻿**/post_queue/
+**/final_products/
+*.mp4
+*_frame.png
+.env
+pycache/
