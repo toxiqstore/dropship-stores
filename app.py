@@ -197,6 +197,17 @@ def render_product_page_html(store_key, item):
 © {year} {cfg['domain']}. All Rights Reserved. Protected Copy & Metadata (SHA-256: {item['copyright_id']}).
 
 """
+def update_sitemap_xml(store_key, items):
+    cfg = STORES[store_key]
+    today = datetime.now().strftime('%Y-%m-%d')
+    urls = [f"  <url><loc>https://{cfg['domain']}/</loc><lastmod>{today}</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>"]
+    for item in items:
+        slug = item.get('slug') or slugify(item['copy']['headline'])
+        urls.append(f"  <url><loc>https://{cfg['domain']}/products/{slug}.html</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>")
+    xml = "<?xml version='1.0' encoding='UTF-8'?>\n<urlset xmlns='http://sitemaps.org'>\n" + "\n".join(urls) + "\n</urlset>"
+    with open(f"{cfg['folder']}/sitemap.xml", 'w', encoding='utf-8') as sf:
+        sf.write(xml)
+
 def rebuild_full_storefront(store_key, items):
 cfg = STORES[store_key]
 prod_dir = f"{cfg['folder']}/products"
@@ -284,6 +295,7 @@ FAST 2–5 DAY US SHIPPING • 30-DAY MONEY-BACK GUARANTEE
 """
 with open(f"{cfg['folder']}/index.html", 'w', encoding='utf-8') as f:
 f.write(index_html)
+    update_sitemap_xml(store_key, items)
 def prune_slow_sellers(store_key, days_limit):
 catalog = load_catalog(store_key)
 if not catalog:
